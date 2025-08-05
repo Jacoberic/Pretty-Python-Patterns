@@ -1,0 +1,5 @@
+colorama==0.4.6
+FreeSimpleGUI==5.2.0.post1
+loguru==0.7.3
+screeninfo==0.8.1
+win32_setctime==1.2.0
