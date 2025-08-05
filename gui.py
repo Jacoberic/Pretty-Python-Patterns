@@ -5,25 +5,32 @@ from math import tau
 import FreeSimpleGUI as sg
 from loguru import logger
 
-from utilities_gui import FolderButton, theme, Icon, Loading, LED, FileButton
+from utilities import Settings
+from utilities_gui import FolderButton, theme, Icon, Loading, LED, FileButton, change_settings
 from utilities_log import log_start
 
 class Gui:
-    def __init__(self) -> None:
+    def __init__(self, settings) -> None:
         self.closed = False
+        self.settings = settings
+
+        main_col = sg.Col([
+            [sg.Input(key='file', expand_x=True), FileButton()],
+            [sg.Button('hi', expand_x=True, expand_y=True)]
+        ], expand_x=True, expand_y=True)
 
         logs_col = sg.Col([
             [sg.Multiline(key='out', reroute_stdout=True, expand_x=True, expand_y=True, autoscroll=True, disabled=True)],
-            [sg.Input(key='log_input', s=(55,1))]
-        ], expand_y=True, key='logs_col')
+            [sg.Input(key='log_input', s=(55,1), expand_x=True)]
+        ], expand_x=True, expand_y=True, key='logs_col')
 
         layout = [
-            [sg.Push(), Loading(key='loading')],
-            [logs_col],
+            [sg.Push(), Icon('settings'), Loading(key='loading')],
+            [main_col, logs_col],
         ]
 
         #*Main window declaration
-        self.window = sg.Window('Project', layout=layout, finalize=True, grab_anywhere=True)
+        self.window = sg.Window('Project', size=(6*theme.w, 6*theme.h), layout=layout, finalize=True, grab_anywhere=True)
         self.window['log_input'].bind('<Return>', '')
 
     def update(self, timeout=10):
@@ -44,6 +51,9 @@ class Gui:
                     logger.info(self.window['log_input'].get())
                     self.window['log_input'].update('')
 
+                if self.event == 'settings':
+                    change_settings(self.settings)
+
                 return True
 
     def close(self):
@@ -55,7 +65,8 @@ class Gui:
 
 if __name__ == '__main__':
     log_start('test')
-    gui = Gui()
+    settings = Settings()
+    gui = Gui(settings)
     while gui.update():
         if gui.event != '__TIMEOUT__':
             print(gui.event)
