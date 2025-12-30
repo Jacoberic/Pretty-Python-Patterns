@@ -2,6 +2,7 @@ import time
 from typing import List, Dict
 import multiprocessing as mp
 import subprocess
+from pathlib import Path
 
 import zmq
 from loguru import logger
@@ -30,11 +31,11 @@ class ZMQMessage:
             dict = dict.copy()
 
             if self.dont_log_args:
-                dict.args = None
-                dict.kwargs = None
+                dict['args'] = ['***']
+                dict['kwargs'] = {'***': '***'}
 
             if self.dont_log_return:
-                dict.return_ = None
+                dict['return_'] = ['***']
 
         return str(dict)
 
@@ -100,8 +101,10 @@ class ZMQServer:
         else:
             logger.error(f'Timed out waiting for response')
 
-    def start_subprocess(self, executable, process_name):
-        subprocess.Popen([executable])
+    def start_subprocess(self, executable, folder, process_name):
+        path = Path(folder)
+        executable_path = path / executable
+        subprocess.Popen([executable_path], cwd=path)
 
         self.client_dictionary[process_name] = 'not_started'
 
@@ -154,6 +157,7 @@ class ZMQServer:
 class StateMachine(ZMQServer):
     def __init__(self, server_name='main', send_address='127.0.0.1', send_port=5555, recv_address='127.0.0.1', recv_port=5556) -> None:
         log_start(server_name)
+        self.state_name = 'init'
         try:
             super().__init__(server_name=server_name, send_address=send_address, send_port=send_port, recv_address=recv_address, recv_port=recv_port)
         except Exception:
@@ -168,30 +172,37 @@ class StateMachine(ZMQServer):
         #*Continuously run the function (state) returned by each state as it finishes
         while True:
             try:
-                #*Call the state
                 logger.debug(f'Entering {state.__name__}')
+                self.state_name = ' '.join(state.__name__.split('_')[:-1])
+
+                #*Call the state
                 return_ = state(*args, **kwargs)
 
-                #*Get the next state
-                if return_ is None:
-                    break
+                #*Get the next state if only one thing is returned
+                if not isinstance(return_, tuple):
+                    if return_ is None:
+                        break
+                    elif callable(return_):
+                        state = return_
+
+                #*Get the next state and args if return is a tuple
                 else:
                     assert callable(return_[0])
                     state = return_[0]
 
-                #*Get the next args
-                if len(return_) < 2:
-                    args = ()
-                else:
-                    args = return_[1]
-                    assert isinstance(args, tuple)
+                    #*Get the next args
+                    if len(return_) < 2:
+                        args = ()
+                    else:
+                        args = return_[1]
+                        assert isinstance(args, tuple)
 
-                #*Get the next kwargs
-                if len(return_) < 3:
-                    kwargs = {}
-                else:
-                    kwargs = return_[2]
-                    assert isinstance(args, dict)
+                    #*Get the next kwargs
+                    if len(return_) < 3:
+                        kwargs = {}
+                    else:
+                        kwargs = return_[2]
+                        assert isinstance(args, dict)
                 
             except Exception:
                 logger.exception(f'Error in "{state.__name__}".')
@@ -208,7 +219,7 @@ class StateMachine(ZMQServer):
         super().close()
 
 class ZMQClient:
-    def __init__(self, recv_port, send_port, client_name, autorun=True) -> None:
+    def __init__(self, recv_port=5555, send_port=5556, client_name='test', autorun=True) -> None:
         log_start(client_name)
 
         self._context = zmq.Context()
