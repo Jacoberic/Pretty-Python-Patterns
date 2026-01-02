@@ -85,6 +85,6 @@ def log_start(process='main'):
         format = "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | <cyan>{module:<20}</cyan> <cyan>{line:>4}</cyan> | <level>{message}</level>"
     )
     
-    logger.info('')
-    logger.info('________________________________________________________________________')
-    logger.info(f'Start of {process} log')
+    logger.debug('')
+    logger.debug('________________________________________________________________________')
+    logger.debug(f'Start of {process} log')
