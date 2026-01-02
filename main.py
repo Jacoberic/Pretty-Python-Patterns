@@ -9,8 +9,9 @@ try:
     from gui import Gui
 
     #*Utilities
-    from utilities import Settings
+    from utilities import Settings, Spinner
     from utilities_log import log_start
+    from utilities_zmq import StateMachine
 
 except Exception:#this is so that errors are captured no matter what when run outside of VSCode.
     from traceback import format_exc
@@ -19,14 +20,47 @@ except Exception:#this is so that errors are captured no matter what when run ou
         file.write(f'{datetime.now():%Y-%m-%d %H.%M.%S} | ERROR | {format_exc()}')
     quit()
 
-try:
-    log_start()
-    settings = Settings()
-    gui = Gui(settings)
+class Main(StateMachine):
+    #*___________Overloads____________
+    def __init__(self):
+        super().__init__()
 
-    while gui.update():
-        if gui.event == 'hi':
-            logger.info(gui.window['file'].get())
+        self.settings = Settings()
+        self.spinner = Spinner()
 
-except Exception:
-    logger.exception('Unhandled exception')
+        self.gui = Gui(self.settings)
+
+    def main_state(self):
+        #*-->ENTER STATE
+        pass
+
+        #*-->RUN STATE-->
+        while self.gui.update():
+            try:
+                self.spinner.spin()
+
+                message = self.recv()
+
+            except KeyboardInterrupt:
+                #*EXIT STATE-->
+                return None
+          
+    def state(self):
+        #*-->ENTER STATE
+        pass
+
+        #*-->RUN STATE-->
+        while True:
+            pass
+            
+            if True:
+                #*EXIT STATE-->
+                return None
+
+    def close(self):
+        return super().close()
+    
+if __name__ == '__main__':
+    main = Main()
+    main.run()
+    main.close()

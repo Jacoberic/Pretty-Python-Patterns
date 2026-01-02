@@ -46,6 +46,18 @@ class Timer():
         while self.start_time + self.timeout < t:
             self.start_time += self.timeout
 
+class Spinner:
+    def __init__(self):
+        self.symbols = ["|", "/", "-", "\\"]
+        self.index = 0
+        self.timer = Timer(0.2)
+
+    def spin(self):
+        if self.timer.finished:
+            self.timer.reset()
+            print("\r" + self.symbols[self.index], end="")  # Carriage return to overwrite, display symbol
+            self.index = (self.index + 1) % len(self.symbols)  # Cycle through the symbols
+
 def csv_to_matrix(file_name):
     with open(file_name, 'r') as file:
         data = [row for row in csv.reader(file)]

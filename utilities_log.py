@@ -32,9 +32,7 @@
 
 # ZeroDivisionError: division by zero
 
-#*I chose a rotation of 8 MB because bigger than that VSCode has trouble handling.
-
-#*Keep in mind there is a maximum message length of 120 characters {message:.120}. This is because I want to log ZMQ messages and sometimes those are things like Base64 image files. 
+#*I chose a rotation of 8 MB because bigger than that VSCode has trouble handling. 
 
 
 from loguru import logger
@@ -51,7 +49,7 @@ def log_start(process='main'):
         rotation = '8 MB',
         compression = 'zip',
         retention = '1 week',
-        format = "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | <cyan>{module:<20}</cyan> <cyan>{line:>4}</cyan> | <level>{message:.120}</level>"
+        format = "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | <cyan>{module:<20}</cyan> <cyan>{line:>4}</cyan> | <level>{message}</level>"
     )
 
     #*DEBUG
@@ -63,7 +61,7 @@ def log_start(process='main'):
         rotation = '8 MB',
         compression = 'zip',
         retention = '1 week',
-        format = "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | <cyan>{module:<20}</cyan> <cyan>{line:>4}</cyan> | <level>{message:.120}</level>"
+        format = "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | <cyan>{module:<20}</cyan> <cyan>{line:>4}</cyan> | <level>{message}</level>"
     )
 
     #*INFO

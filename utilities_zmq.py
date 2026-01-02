@@ -205,10 +205,14 @@ class StateMachine(ZMQServer):
                         assert isinstance(args, dict)
                 
             except Exception:
-                logger.exception(f'Error in "{state.__name__}".')
-                state = self.main_state
-                args = ()
-                kwargs = {}
+                if self.state_name == 'main state':
+                    logger.exception('Critical state machine error.')
+                    return None
+                else:
+                    logger.exception(f'Error in "{state.__name__}".')
+                    state = self.main_state
+                    args = ()
+                    kwargs = {}
 
         logger.debug('Leaving run loop.')
 
