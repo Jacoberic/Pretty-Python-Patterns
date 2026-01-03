@@ -58,6 +58,15 @@ class Spinner:
             print("\r" + self.symbols[self.index], end="")  # Carriage return to overwrite, display symbol
             self.index = (self.index + 1) % len(self.symbols)  # Cycle through the symbols
 
+    def gui_spin(self):
+        if self.timer.finished:
+            self.timer.reset()
+            symbol = self.symbols[self.index]  # Carriage return to overwrite, display symbol
+            self.index = (self.index + 1) % len(self.symbols)  # Cycle through the symbols
+
+            return symbol
+
+
 def csv_to_matrix(file_name):
     with open(file_name, 'r') as file:
         data = [row for row in csv.reader(file)]
