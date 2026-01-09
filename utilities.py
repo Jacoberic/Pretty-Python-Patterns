@@ -87,7 +87,7 @@ class RollingList:
             initial_list (list, optional): Defaults to [].
             length (int, optional): Always is this length or less. Defaults to 100.
         """
-        self._list == [] if initial_list is None else initial_list
+        self._list = [] if initial_list is None else initial_list
         self.length = length
 
     def __str__(self) -> str:
