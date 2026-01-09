@@ -11,13 +11,13 @@ from utilities import Timer
 from utilities_log import log_start
 
 class ZMQMessage:
-    def __init__(self, server:str=None, client:str=None, function:str=None, args:List[any]=[], kwargs:Dict[str, any]={}, return_:List[any]=[], status:str=None, times:List[any]=[], id_:int=None, dont_log_args:bool=False, dont_log_return:bool=False):
+    def __init__(self, server:str=None, client:str=None, function:str=None, args:List[any]=None, kwargs:Dict[str, any]=None, return_:List[any]=None, status:str=None, times:List[any]=[], id_:int=None, dont_log_args:bool=False, dont_log_return:bool=False):
         self.server: str = server
         self.client: str = client
         self.function: str = function
-        self.args: List[any] = args
-        self.kwargs: Dict[str, any] = kwargs
-        self.return_: List[any] = return_
+        self.args: List[any] = [] if args is None else args
+        self.kwargs: Dict[str, any = {} if kwargs is None else kwargs
+        self.return_: List[any] = [] if return_ is None else return_
         self.status: str = status
         self.times: List[int] = times
         self.id_: int = id_
