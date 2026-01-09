@@ -79,7 +79,7 @@ def matrix_to_csv(data, file_name):
             writer.writerows(data)
 
 class RollingList:
-    def __init__(self, initial_list=None, length=100) -> None:
+    def __init__(self, initial_list=[], length=100) -> None:
         """A rolling list that always contains the most recent "length" components.
         Used generally for keeping track of recent values for redundant fault checking, or for graphing.
 
@@ -87,10 +87,7 @@ class RollingList:
             initial_list (list, optional): Defaults to [].
             length (int, optional): Always is this length or less. Defaults to 100.
         """
-        if initial_list is None:
-            self._list = []
-        else:
-            self._list = initial_list
+        self._list = initial_list
         self.length = length
 
     def __str__(self) -> str:
