@@ -16,7 +16,7 @@ class ZMQMessage:
         self.client: str = client
         self.function: str = function
         self.args: List[any] = [] if args is None else args
-        self.kwargs: Dict[str, any = {} if kwargs is None else kwargs
+        self.kwargs: Dict[str, any] = {} if kwargs is None else kwargs
         self.return_: List[any] = [] if return_ is None else return_
         self.status: str = status
         self.times: List[int] = times
