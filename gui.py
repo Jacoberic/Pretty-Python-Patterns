@@ -20,7 +20,7 @@ class Gui:
         ], expand_x=True, expand_y=True)
 
         logs_col = sg.Col([
-            [sg.Multiline(key='out', reroute_stdout=True, expand_x=True, expand_y=True, autoscroll=True, disabled=True)],
+            [sg.Output(key='out', expand_x=True, expand_y=True)],
             [sg.Input(key='log_input', s=(55,1), expand_x=True)]
         ], expand_x=True, expand_y=True, key='logs_col')
 
@@ -32,6 +32,7 @@ class Gui:
         #*Main window declaration
         self.window = sg.Window('Project', size=(6*theme.w, 6*theme.h), layout=layout, finalize=True, grab_anywhere=True)
         self.window['log_input'].bind('<Return>', '')
+        self.window['log_input'].bind('<KP_Enter>', '')
 
     def update(self, timeout=10):
         if self.closed:
