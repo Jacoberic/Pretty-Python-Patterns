@@ -184,6 +184,8 @@ class StateMachine(ZMQServer):
                         break
                     elif callable(return_):
                         state = return_
+                        args = ()
+                        kwargs = {}
 
                 #*Get the next state and args if return is a tuple
                 else:
@@ -193,6 +195,7 @@ class StateMachine(ZMQServer):
                     #*Get the next args
                     if len(return_) < 2:
                         args = ()
+                        kwargs = {}
                     else:
                         args = return_[1]
                         assert isinstance(args, tuple)
