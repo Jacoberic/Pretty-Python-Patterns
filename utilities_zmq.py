@@ -104,7 +104,7 @@ class ZMQServer:
     def start_subprocess(self, executable, folder, process_name):
         path = Path(folder)
         executable_path = path / executable
-        subprocess.Popen([executable_path], cwd=path)
+        subprocess.Popen([executable_path, process_name], cwd=path)
 
         self.client_dictionary[process_name] = 'not_started'
 
@@ -205,7 +205,7 @@ class StateMachine(ZMQServer):
                         kwargs = {}
                     else:
                         kwargs = return_[2]
-                        assert isinstance(args, dict)
+                        assert isinstance(kwargs, dict)
                 
             except Exception:
                 if self.state_name == 'main state':
