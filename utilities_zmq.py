@@ -3,6 +3,7 @@ from typing import List, Dict
 import multiprocessing as mp
 import subprocess
 from pathlib import Path
+from traceback import format_exc
 
 import zmq
 from loguru import logger
@@ -293,7 +294,8 @@ class ZMQClient:
                 message.return_ = function(*message.args, **message.kwargs)
             except Exception:
                 logger.exception(message.function)
-                message.status = 'function_error'
+                message.status = 'error'
+                message.return_ = format_exc()
             else:
                 message.status = 'success'
 
