@@ -102,6 +102,212 @@ def change_settings(settings):
                 gc.collect()#Set windows to none and garbage collect to prevent errors with multi-threading and multiple windows.
                 return True
 
+class GuiProgressMeter:
+    def __init__(self, title, body, max_value) -> None:
+        self.closed = False
+
+        # Layout for the number pad
+        layout = [
+            [sg.Text(title)],
+            [sg.Text(body)],
+            [sg.ProgressBar(max_value, 'horizontal', size=(20,40), bar_color=(theme.RED, theme.BLUEDARK), key='bar', expand_x=True)],
+            [sg.Button('Send Now'), sg.Button('Cancel')],
+        ]
+
+        #*Main window declaration
+        self.window = sg.Window('Alarm', layout=layout, finalize=True)
+
+    def update(self, current_value, timeout=1):
+        if self.closed:
+            return False
+        else:
+            #*Read the window
+            self.event, self.values = self.window.read(timeout=timeout)
+            
+            if self.event == sg.WINDOW_CLOSED or self.event == 'Cancel':
+                self.close()
+                return False
+            elif self.event == 'Send Now':
+                return 'now'
+            else:
+                #*Update things
+                self.window['bar'].update(current_value)
+
+                return True
+
+    def close(self):
+        self.window.close()
+        self.window.layout = None
+        self.window = None
+        gc.collect()
+        self.closed = True
+
+class GuiGetNumber:
+    def __init__(self, title) -> None:
+        self.closed = False
+
+        # Define button style for square buttons
+        button_style = {
+            'size': (3, 2),  # Width and height of the buttons
+            'pad': (0, 0),    # Padding around buttons
+            'font': 'Verdana 12',
+        }
+
+        # Layout for the number pad
+        layout = [
+            [sg.Text(title, font='Verdana 16')],
+            [sg.Input(size=(4, 1), key='output', justification='right', font='Verdana 16', expand_x=True, pad=0)],  # Input field
+            [sg.Button('7', **button_style), 
+            sg.Button('8', **button_style), 
+            sg.Button('9', **button_style)],
+            [sg.Button('4', **button_style), 
+            sg.Button('5', **button_style), 
+            sg.Button('6', **button_style)],
+            [sg.Button('1', **button_style), 
+            sg.Button('2', **button_style), 
+            sg.Button('3', **button_style)],
+            [sg.Button('0', **button_style), 
+            sg.Button('←', key='backspace', **button_style, expand_x=True)],  # Backspace button
+            [sg.Button('Enter', size=(5, 3), pad=(0, 0), expand_x=True), sg.Button('Cancel', size=(5, 3), pad=(0, 0), expand_x=True)]  # Enter button
+        ]
+
+        #*Main window declaration
+        self.window = sg.Window('Enter Number', layout=layout, finalize=True)
+
+    def update(self, timeout=100):
+        if self.closed:
+            return False
+        else:
+            #*Read the window
+            self.event, self.values = self.window.read(timeout=timeout)
+            
+            if self.event == sg.WINDOW_CLOSED or self.event == 'Cancel':
+                self.close()
+                return False
+            else:
+                #*Update things
+
+                return True
+
+    def close(self):
+        self.window.close()
+        self.window.layout = None
+        self.window = None
+        gc.collect()
+        self.closed = True
+
+    def numpad_entry(self, event):
+        current_value = self.window['output'].get()
+        return_value = None
+
+        #*Event handling
+        if event in '0123456789':
+            new_value = current_value + event  # Add number to current value
+        elif event == 'backspace':
+            new_value = current_value[:-1]  # Remove last character (backspace)
+        elif event == 'Enter':
+            return_value = current_value
+            new_value = ''
+        else:
+            new_value = current_value
+
+        self.window['output'].update(new_value)
+        return return_value  # Return updated value otherwise
+
+def get_number(title=''):
+    gui = GuiGetNumber(title)
+    while gui.update():
+        entry = gui.numpad_entry(gui.event)
+
+        if entry:
+            gui.close()
+            return entry
+
+class GuiGetText:
+    def __init__(self, title) -> None:
+        self.closed = False
+
+        # Define button style for square buttons
+        button_style = {
+            'size': (3, 2),  # Width and height of the buttons
+            'pad': (0, 0),    # Padding around buttons
+            'font': 'Verdana 12',
+        }
+
+        # Define the layout for the Email Input Keyboard
+        layout = [
+            [sg.Text(title, font='Verdana 16')],
+            [sg.Input(size=(30, 1), key='output', font='Verdana 16', expand_x=True, pad=0)],
+            [sg.Button('q', **button_style), sg.Button('w', **button_style), sg.Button('e', **button_style),
+            sg.Button('r', **button_style), sg.Button('t', **button_style), sg.Button('y', **button_style),
+            sg.Button('u', **button_style), sg.Button('i', **button_style), sg.Button('o', **button_style),
+            sg.Button('p', **button_style), sg.Button('7', **button_style), sg.Button('8', **button_style),
+            sg.Button('9', **button_style), sg.Button('←', key='backspace', **button_style)],
+            [sg.Button('a', **button_style), sg.Button('s', **button_style), sg.Button('d', **button_style),
+            sg.Button('f', **button_style), sg.Button('g', **button_style), sg.Button('h', **button_style),
+            sg.Button('j', **button_style), sg.Button('k', **button_style), sg.Button('l', **button_style),
+            sg.Button(';', **button_style), sg.Button('4', **button_style), sg.Button('5', **button_style), sg.Button('6', **button_style)],
+            [sg.Button('z', **button_style), sg.Button('x', **button_style), sg.Button('c', **button_style),
+            sg.Button('v', **button_style), sg.Button('b', **button_style), sg.Button('n', **button_style),
+            sg.Button('m', **button_style), sg.Button(',', **button_style), 
+            sg.Button('.', **button_style), sg.Button('@', **button_style),  sg.Button('1', **button_style), sg.Button('2', **button_style),
+            sg.Button('3', **button_style), sg.Button('0', **button_style)],
+            [sg.Button('Enter', size=(11, 3), pad=(0, 0), expand_x=True), sg.Button('Cancel', size=(11, 3), pad=(0, 0), expand_x=True)]  # Enter button
+        ]
+
+        #*Main window declaration
+        self.window = sg.Window('Enter Text', layout=layout, finalize=True)
+
+    def update(self, timeout=100):
+        if self.closed:
+            return False
+        else:
+            #*Read the window
+            self.event, self.values = self.window.read(timeout=timeout)
+            
+            if self.event == sg.WINDOW_CLOSED or self.event == 'Cancel':
+                self.close()
+                return False
+            else:
+                #*Update things
+
+                return True
+
+    def close(self):
+        self.window.close()
+        self.window.layout = None
+        self.window = None
+        gc.collect()
+        self.closed = True
+
+    def text_entry(self, event):
+        current_value = self.window['output'].get()
+        return_value = None
+
+        #*Event handling
+        if event == 'backspace':
+            new_value = current_value[:-1]  # Remove last character
+        elif event in 'abcdefghijklmnopqrstuvwxyz0123456789@,.;':
+            new_value = current_value + event  # Append the letter or number to email address
+        elif event == 'Enter':
+            return_value = current_value
+            new_value = ''
+        else:
+            new_value = current_value
+
+        self.window['output'].update(new_value)
+        
+        return return_value  # Return updated value otherwise
+
+def get_text(title=''):
+    gui = GuiGetText(title)
+    while gui.update():
+        entry = gui.text_entry(gui.event)
+
+        if entry:
+            gui.close()
+            return entry
+
 class BorderButton(sg.Frame):
     def __init__(
         self, button_text='', relief='groove', background_color=None, button_type=7, target=(None, None), tooltip=None, file_types=(('ALL Files', '*.* *'),), initial_folder=None, default_extension='', disabled=False, change_submits=False, 
