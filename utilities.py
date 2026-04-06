@@ -2,12 +2,21 @@ from time import time
 import json
 import os
 import csv
+import yaml
 
 class Timer():
-    def __init__(self, timeout, segment_by_timeout=False):
-        self.start_time = time()
+    def __init__(self, timeout, segment_by_timeout=False, start_finished=False):
+        if segment_by_timeout and start_finished:
+            raise Exception('Cannot segment by timeout and start finished.')
+            
+        if start_finished:
+            self.start_time = 0
+        else:
+            self.start_time = time()
+
         if segment_by_timeout:
             self.start_time = self.start_time // timeout * timeout - timeout
+
         self.timeout = timeout
         self.on = True
 
@@ -78,6 +87,12 @@ def matrix_to_csv(data, file_name):
             writer = csv.writer(file)
             writer.writerows(data)
 
+def load_config(file_path):
+    with open(file_path, 'r') as file:
+        config = yaml.load(file, yaml.Loader)
+
+    return config
+
 class RollingList:
     def __init__(self, initial_list=None, length=100) -> None:
         """A rolling list that always contains the most recent "length" components.
@@ -92,6 +107,12 @@ class RollingList:
 
     def __str__(self) -> str:
         return str(self._list)
+
+    @property
+    def last_value(self):
+        """Returns the last value in the list.
+        """
+        return self._list[-1]
 
     def append(self, element):
         """Call List.append then removes the oldest element if it's over the self.length
@@ -130,6 +151,17 @@ class RollingList:
             return None
         else:
             return all(element > value for element in self._list)
+
+    def all_empty(self) -> bool:
+        """Returns True if all elements in the list have a length equal to 0
+
+        Returns:
+            bool: all(len(element) == 0 for element in self._list)
+        """
+        if len(self._list) < self.length:
+            return None
+        else:
+            return all(len(element) == 0 for element in self._list)
 
     def all_non_empty(self) -> bool:
         """Returns True if all elements in the list have a length greater than 0
@@ -178,6 +210,18 @@ class RollingList:
             majority_list.sort()
             majority = majority_list[-1][1]
             return majority
+
+    def within(self, limit: float) -> bool:
+        """Checks if the difference between the max and min is within the limit.
+
+        Args:
+            limit (float): The limit
+
+        Returns:
+            bool: True if the difference is between the limit.
+        """
+        range_ = max(self._list) - min(self._list)
+        return limit > range_
 
 class _Settings:
     def __init__(self) -> None:
@@ -255,8 +299,12 @@ class Settings(_Settings):
         self._readonly = readonly
 
         #*These are the default values for json dictionary entries. It won't let anymore be set besides these, and they'll show up in linting.
-        self.username = ''
-        self.password = ''
+        self.send_list = ['6366145540@text2email.net']
+        self.power_supply_update_time = 0.5
+        self.power_supply_comport_memory = {}
+        self.ramp_time = 10
+        self.chiller_interlock_time = 2
+        self.alarm_wait = 60
 
         super().__init__()
         self._initialized = True
