@@ -34,7 +34,6 @@
 
 #*I chose a rotation of 8 MB because bigger than that VSCode has trouble handling. 
 
-
 from loguru import logger
 
 def log_start(process='main'):
@@ -88,3 +87,18 @@ def log_start(process='main'):
     logger.debug('')
     logger.debug('________________________________________________________________________')
     logger.debug(f'Start of {process} log')
+
+def trace(*args, **kwargs):
+    return logger.trace(*args, **kwargs)
+
+def debug(*args, **kwargs):
+    return logger.debug(*args, **kwargs)
+
+def info(*args, **kwargs):
+    return logger.info(*args, **kwargs)
+
+def warning(*args, **kwargs):
+    return logger.warning(*args, **kwargs)
+
+def exception(*args, **kwargs):
+    return logger.exception(*args, **kwargs)
